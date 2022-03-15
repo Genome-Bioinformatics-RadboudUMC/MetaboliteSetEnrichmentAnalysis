@@ -1,0 +1,165 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.umcn.tml</groupId>
+	<artifactId>MetaboliteSetEnrichmentAnalysis</artifactId>
+	<version>1.0.0-RELEASE</version>
+
+	<properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
+
+        <org.junit.version>4.12</org.junit.version>
+        <org.mockito.version>2.18.3</org.mockito.version>
+
+        <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+        <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
+
+        <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
+   		<org.springframework.version>4.0.2.RELEASE</org.springframework.version>
+   		
+		<concurrent-threads>4</concurrent-threads>  
+    </properties>
+
+	<dependencies>				
+		<!-- Spring Framework Dependencies -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<version>${spring.boot.version}</version>
+		</dependency>
+		<dependency>
+        <!-- Import dependency management from Spring Boot -->
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-dependencies</artifactId>
+			<version>${spring.boot.version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		
+		<!-- TEST DEPENDENCIES -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${org.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${org.mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+		<!-- For parsing command line arguments -->
+		<dependency>
+			<groupId>net.sf.jopt-simple</groupId>
+			<artifactId>jopt-simple</artifactId>
+			<version>4.6</version>
+		</dependency>
+		
+		<!-- Commons -->
+		<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-lang3</artifactId>
+    		<version>3.4</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.0</version>
+		</dependency>
+		
+		<!-- Calculate Age -->
+	 	<dependency>
+    		<groupId>joda-time</groupId>
+    		<artifactId>joda-time</artifactId>
+    		<version>2.9.9</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+        <!-- Always execute these plugins, no matter what -->
+        <plugins>
+        	<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <!-- Run tests in parallel -->
+                    <parallel>classes</parallel>
+                    <threadCount>${concurrent-threads}</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Always make JGitFlow available-->
+            <plugin>
+   				<groupId>com.amashchenko.maven.plugin</groupId>
+   				<artifactId>gitflow-maven-plugin</artifactId>
+   				<version>1.17.0</version>
+   				<configuration>
+                 <versionDigitToIncrement>1</versionDigitToIncrement>
+                 <pushRemote>true</pushRemote>
+                 <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+                 <keepBranch>false</keepBranch>
+                 <useSnapshotInRelease>true</useSnapshotInRelease>
+                 <useSnapshotInHotfix>true</useSnapshotInHotfix>
+                 <useSnapshotInSupport>true</useSnapshotInSupport>
+                 <postReleaseGoals>clean</postReleaseGoals>
+             </configuration>
+			</plugin>
+            <!-- Packages the application into a ZIP containing scripts and external configuration -->
+            <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                    <configuration>
+                        <descriptors>
+                            <descriptor>src/main/assembly/assembly.xml</descriptor>
+                        </descriptors>
+                        <archiverConfig>
+                            <directoryMode>0770</directoryMode>
+                            <defaultDirectoryMode>0770</defaultDirectoryMode>
+                            <fileMode>0770</fileMode>
+                        </archiverConfig>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+    </build>
+</project>
